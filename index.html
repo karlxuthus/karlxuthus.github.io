@@ -156,6 +156,92 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-简单模拟网页登录" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/27/简单模拟网页登录/">简单模拟网页登录</a>
+    </h1>
+  
+
+        
+        <a href="/2017/09/27/简单模拟网页登录/" class="archive-article-date">
+  	<time datetime="2017-09-27T03:54:23.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-27</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>使用工具：<a href="https://chromedriver.storage.googleapis.com/index.html?path=2.31/" target="_blank" rel="external">谷歌webdriver</a>、<a href="http://www.cnplugins.com/devtool/selectorgadget/download.html" target="_blank" rel="external">谷歌浏览器插件SelectorGadget</a><br>使用python库：selenium、requests、time</p>
+<h2 id="举例豆瓣登录说明"><a href="#举例豆瓣登录说明" class="headerlink" title="举例豆瓣登录说明"></a><strong>举例豆瓣登录说明</strong></h2><p>将谷歌webdriver作为浏览器下载到自己D盘，并且给自己的chrome安装好插件SelectorGadget<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</div><div class="line">chromePath = <span class="string">r'D:\test\chromedriver.exe'</span> <span class="comment">#浏览器存放位置</span></div><div class="line">wd = webdriver.Chrome(executable_path= chromePath)<span class="comment">#构建浏览器</span></div><div class="line">loginUrl = <span class="string">'https://www.douban.com/login'</span> <span class="comment">#豆瓣登录网址</span></div><div class="line">wd.get(loginUrl) <span class="comment">#进入登陆界面</span></div></pre></td></tr></table></figure></p>
+<p>使用插件SelectorGadget获取“用户名选项卡”、“密码选项卡”、“登录”的位置xpath<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">wd.find_element_by_xpath(<span class="string">'用户名选项卡位置'</span>).send_keys(<span class="string">'用户名'</span>)</div><div class="line">wd.find_element_by_xpath(<span class="string">'密码选项卡位置'</span>).send_keys(<span class="string">'密码'</span>)</div></pre></td></tr></table></figure></p>
+<p>登录若是按钮就选择用click(),若是表单就选择submit()<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">wd.find_element_by_xpath(&apos;登陆按钮所在位置&apos;).click() #若是按钮</div><div class="line">wd.find_element_by_xpath(&apos;登陆按钮所在位置&apos;).submit() #若是表单</div></pre></td></tr></table></figure></p>
+<hr>
+<p>有些登录网页需要手输验证码，得两遍登录<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">wd.find_element_by_xpath(<span class="string">'登陆按钮所在位置'</span>).click() <span class="comment">#点击登录</span></div><div class="line">wd.find_element_by_xpath(<span class="string">'验证码输入所在位置'</span>).send_keys(input(<span class="string">"输入验证码： "</span>))</div><div class="line">wd.find_element_by_xpath(<span class="string">'登陆按钮所在位置'</span>).click() <span class="comment">#再次点击登录</span></div></pre></td></tr></table></figure></p>
+<hr>
+<p>有时候方法不好使，可以设置半自动登录<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line">time.sleep(<span class="number">45</span>) <span class="comment">#设定45秒睡眠，期间进行手动登陆</span></div></pre></td></tr></table></figure></p>
+<p>time.sleep()可以暂停执行下面的程序。在此期间你可以进行手动登陆，扫描二维码等。其好处就是程序本身是不需要停止执行的！下面的所有程序可以无缝衔接。</p>
+<p>调出cookies<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> reqeusts</div><div class="line">cookies = wd.get_cookies()</div></pre></td></tr></table></figure></p>
+<p>导入requests库,并构建Session()<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">req = requests.Session()</div></pre></td></tr></table></figure></p>
+<p>将selenium形式的cookies转换为requests可用的cookies<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> cookie <span class="keyword">in</span> cookies:</div><div class="line">        req.cookies.set(cookie[<span class="string">'name'</span>],cookie[<span class="string">'value'</span>])</div></pre></td></tr></table></figure></p>
+<p>req.headers.clear()是删除原始req里面标记有python机器人的信息。这个信息会被一些网站（比如知乎）捕捉到。造成登陆爬取失败，务必要删除。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">req.headers.clear() </div><div class="line">test = req.get(<span class="string">'待测试的链接'</span>)</div></pre></td></tr></table></figure></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">学习笔记 python</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/09/27/简单模拟网页登录/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-数据分析-金融学统计方向-许必成" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -403,6 +489,10 @@ getOwnMetadataKeys:function(t){return o(i(t),arguments.length<2?void 0:u(argumen
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">学习笔记 python</a>
+              </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">resume</a>
